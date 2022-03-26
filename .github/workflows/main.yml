@@ -21,7 +21,7 @@ jobs:
         working-directory: blazor/Configurator
         
       - name: Publish to GitHub Pages
-        uses: tsunematsu21/actions-publish-gh-pages@v1.0.2
+        uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
-          dir: blazor/Configurator/bin/Release/publish/wwwroot
-          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: blazor/Configurator/bin/Release/publish/wwwroot
