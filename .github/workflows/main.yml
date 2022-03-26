@@ -23,5 +23,5 @@ jobs:
       - name: Publish to GitHub Pages
         uses: tsunematsu21/actions-publish-gh-pages@v1.0.2
         with:
-          dir: blazor/Configurator/bin/Release
+          dir: blazor/Configurator/bin/Release/publish/wwwroot
           token: ${{ secrets.GITHUB_TOKEN }}
