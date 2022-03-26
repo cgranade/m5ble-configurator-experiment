@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '7.0.x'
+          include-prerelease: true
+
+      - name: Run a one-line script
+        run: dotnet publish --configuration Release
+        working-directory: blazor/Configurator
+        
+      - name: Publish to GitHub Pages
+        uses: tsunematsu21/actions-publish-gh-pages@v1.0.2
+        with:
+          dir: blazor/Configurator/bin/Release
+          token: ${{ secrets.GITHUB_TOKEN }}
