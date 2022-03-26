@@ -1,0 +1,119 @@
+﻿@page "/"
+@inject IBluetoothNavigator bluetoothNavigator
+@inject ILogger<Index> logger
+@using System.Text
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+<table>
+    <tbody>
+        <tr>
+            <th>Device name</th>
+            <td>@DeviceName</td>
+        </tr>
+        <tr>
+            <th>Prompt</th>
+            <td><input @bind="Prompt"></td>
+        </tr>
+        <tr>
+            <th>SSID</th>
+            <td><input @bind='Ssid'></td>
+        </tr>
+        <tr>
+            <th>Password</th>
+            <td><input type="password" @bind='Password'></td>
+        </tr>
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="Connect">Connect</button>
+<button class="btn btn-primary" @onclick='async () => await SetPrompt("hello!")'>Set new prompt</button>
+<button class="btn btn-primary" @onclick='GetConfig'>Get config from device</button>
+<button class="btn btn-primary" @onclick='SendConfig'>Send config to device</button>
+<button class="btn btn-primary" @onclick='ReconnectToWifi'>Reconnect to WiFi</button>
+
+
+@code
+{
+    const string SERVICE_UUID = "57bf47c8-8bf6-489f-b89b-109e9f892602";
+    const string PROMPT_CHARACTERISTIC_UUID = "76883ff7-01dc-4750-9659-f5336e81764a";
+    const string WIFI_SSID_CHARACTERISTIC_UUID = "22834252-e71c-4b13-a050-8951874c5b20";
+    const string WIFI_PASSWORD_CHARACTERISTIC_UUID = "605fa5b2-bf86-4e1b-93c0-4c77cf0df75c";
+    const string WIFI_RECONNECT_CHARACTERISTIC_UUID = "92996f42-419a-4162-8b70-96aa7a9d891e";
+
+    private Device? Device = null;
+
+    protected string DeviceName => Device?.Name ?? "<disconnected>";
+    protected string? Ssid { get; set; }
+    protected string? Password { get; set; }
+    protected string? Prompt { get; set; }
+
+    protected async Task SetPrompt(string newPrompt)
+    {
+        // FIXME: if device is null, do something sensible here. Using ! is
+        //        wrong.
+        await SetCharacteristicValue(PROMPT_CHARACTERISTIC_UUID, newPrompt);
+    }
+
+    protected async Task GetConfig()
+    {
+        Prompt = await GetCharacteristicValue(PROMPT_CHARACTERISTIC_UUID);
+        Ssid = await GetCharacteristicValue(WIFI_SSID_CHARACTERISTIC_UUID);
+        Password = await GetCharacteristicValue(WIFI_PASSWORD_CHARACTERISTIC_UUID);
+        StateHasChanged();
+    }
+
+    protected async Task SendConfig()
+    {
+        await SetCharacteristicValue(PROMPT_CHARACTERISTIC_UUID, Prompt ?? "");
+        await SetCharacteristicValue(WIFI_SSID_CHARACTERISTIC_UUID, Ssid ?? "");
+        await SetCharacteristicValue(WIFI_PASSWORD_CHARACTERISTIC_UUID, Password ?? "");
+        await ReconnectToWifi();
+    }
+
+    protected async Task ReconnectToWifi()
+    {
+        // FIXME: if device is null, do something sensible here. Using ! is
+        //        wrong.
+        await Device!.WriteValueAsync(SERVICE_UUID, WIFI_RECONNECT_CHARACTERISTIC_UUID, Array.Empty<byte>());
+    }
+
+    protected async Task Connect()
+    {
+        @* TODO: Figure out why filtering doesn't work here. *@
+        var query = new RequestDeviceQuery
+        {
+            AcceptAllDevices = true,
+            OptionalServices = new List<string>
+            {
+                SERVICE_UUID
+            }
+        };
+        var device = await bluetoothNavigator.RequestDeviceAsync(query);
+        logger.LogInformation("Got device, I think? Id = {Id}, Name = {Name}", device.Id, device.Name);
+        Device = device;
+
+        @* await GetConfig(); *@
+    }
+
+    private async Task<string?> GetCharacteristicValue(string uuid)
+    {
+        if (Device == null) return null;
+
+        logger.LogInformation("Trying to get value for characteristic {Uuid}.", uuid);
+        var value = Encoding.UTF8.GetString(await Device.ReadValueAsync(SERVICE_UUID, uuid));
+        logger.LogInformation("Got value for characteristic {Uuid}: {Value}.", uuid, value);
+        return value;
+    }
+
+    private async Task SetCharacteristicValue(string uuid, string value)
+    {
+        // TODO: Fail if device is null!
+        var str = Encoding.UTF8.GetBytes(value);
+        logger.LogInformation("Trying to set value for characteristic {Uuid} to {Value}.", uuid, str);
+        await Device!.WriteValueAsync(SERVICE_UUID, uuid, str);
+    }
+
+}
