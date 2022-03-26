@@ -1,3 +1,10 @@
+# Running the server
+
+```dotnetcli
+cd blazor/Configurator
+dotnet run --pathbase=/m5ble-configurator-experiment
+```
+
 # Resources
 
 - https://docs.microsoft.com/events/dotnetconf-2021/connecting-gadgets-to-blazor
