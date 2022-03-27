@@ -6,6 +6,7 @@
 
 #include "configurator_service.hpp"
 #include "wifi_connection.hpp"
+#include "config_store.hpp"
 
 #include <sstream>
 
@@ -22,6 +23,12 @@ void updateDisplay(void) {
     gfx.setTextSize(1, 1);
     gfx.drawString(currentPrompt.c_str(), 10, 10);
 
+    // SD Card status
+    if (SD.cardType() == CARD_NONE) {
+      gfx.drawString("SD card missing.", 10, 400);
+    }
+
+    // BLE Status
     if (bleDeviceConnected) {
       gfx.drawString("BLE: Connected.", 10, 60);
     } else {
@@ -58,12 +65,14 @@ void setup(void) {
   gfx.setAutoDisplay(false); 
   gfx.fillScreen(TFT_WHITE);
   gfx.setFont(&fonts::FreeSerifBold18pt7b);
+  // Update as soon as possible so that the user knows we're working.
+  updateDisplay();
+
+  // Make sure to load config data before trying to init communications.
+  loadConfig();
 
   initBLE();
-
   WiFiConnection.setup();
-
-  updateDisplay();
 }
 
 void loop(void) {

@@ -1,5 +1,6 @@
 #include "configurator_service.hpp"
 #include "wifi_connection.hpp"
+#include "config_store.hpp"
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
@@ -9,6 +10,7 @@
 #define WIFI_SSID_CHARACTERISTIC_UUID "22834252-e71c-4b13-a050-8951874c5b20"
 #define WIFI_PASSWORD_CHARACTERISTIC_UUID "605fa5b2-bf86-4e1b-93c0-4c77cf0df75c"
 #define WIFI_RECONNECT_CHARACTERISTIC_UUID "92996f42-419a-4162-8b70-96aa7a9d891e"
+#define SAVE_CONFIG_CHARACTERISTIC_UUID "62c4e57d-e7df-4eec-884b-13587fa2f0bf"
 
 BLEServer *bleServer;
 BLEService *configuratorService;
@@ -100,6 +102,14 @@ class WiFiReconnectCharacteristicCallback: public BLECharacteristicCallbacks {
   }
 };
 
+class SaveConfigCharacteristicCallback: public BLECharacteristicCallbacks {
+  void onWrite(BLECharacteristic *characteristic) {
+    // Don't look at the value — any write means to same out the config.
+    Serial.println("Got command to save config to SD card.");
+    saveConfig();
+  }
+};
+
 void initBLE() {
   BLEDevice::init("m5paper");
   bleServer = BLEDevice::createServer();
@@ -131,6 +141,12 @@ void initBLE() {
     BLECharacteristic::PROPERTY_WRITE
   );
   reconnectCharacteristic->setCallbacks(new WiFiReconnectCharacteristicCallback());
+
+  auto saveConfigCharacteristic = configuratorService->createCharacteristic(
+    SAVE_CONFIG_CHARACTERISTIC_UUID,
+    BLECharacteristic::PROPERTY_WRITE
+  );
+  saveConfigCharacteristic->setCallbacks(new SaveConfigCharacteristicCallback());
 
   configuratorService->start();
   BLEAdvertising *advertising = bleServer->getAdvertising();

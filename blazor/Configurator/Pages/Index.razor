@@ -42,6 +42,7 @@
     const string WIFI_SSID_CHARACTERISTIC_UUID = "22834252-e71c-4b13-a050-8951874c5b20";
     const string WIFI_PASSWORD_CHARACTERISTIC_UUID = "605fa5b2-bf86-4e1b-93c0-4c77cf0df75c";
     const string WIFI_RECONNECT_CHARACTERISTIC_UUID = "92996f42-419a-4162-8b70-96aa7a9d891e";
+    const string SAVE_CONFIG_CHARACTERISTIC_UUID = "62c4e57d-e7df-4eec-884b-13587fa2f0bf";
 
     private Device? Device = null;
 
@@ -70,6 +71,7 @@
         await SetCharacteristicValue(PROMPT_CHARACTERISTIC_UUID, Prompt ?? "");
         await SetCharacteristicValue(WIFI_SSID_CHARACTERISTIC_UUID, Ssid ?? "");
         await SetCharacteristicValue(WIFI_PASSWORD_CHARACTERISTIC_UUID, Password ?? "");
+        await SaveConfigToCard();
         await ReconnectToWifi();
     }
 
@@ -77,7 +79,16 @@
     {
         // FIXME: if device is null, do something sensible here. Using ! is
         //        wrong.
+        logger.LogInformation("Reconnecting to WiFi...");
         await Device!.WriteValueAsync(SERVICE_UUID, WIFI_RECONNECT_CHARACTERISTIC_UUID, Array.Empty<byte>());
+    }
+
+    protected async Task SaveConfigToCard()
+    {
+        // FIXME: if device is null, do something sensible here. Using ! is
+        //        wrong.
+        logger.LogInformation("Saving config to SD card...");
+        await Device!.WriteValueAsync(SERVICE_UUID, SAVE_CONFIG_CHARACTERISTIC_UUID, Array.Empty<byte>());
     }
 
     protected async Task Connect()
