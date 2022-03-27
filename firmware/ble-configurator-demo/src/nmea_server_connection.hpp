@@ -3,10 +3,12 @@
 
 class NmeaServerConnection {
 public:
-    std::string getIp();
-    void setIp(std::string ip);
-    uint32_t getPort();
-    void setPort(uint32_t port);
+    std::string getHost();
+    void setHost(std::string host);
+    uint16_t getPort();
+    void setPort(uint16_t port);
+
+    bool getSpeedAndHeading(std::pair<double, double>* speedAndHeading);
 };
 
 extern class NmeaServerConnection NmeaServerConnection;

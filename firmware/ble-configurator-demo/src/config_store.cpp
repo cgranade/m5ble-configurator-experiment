@@ -10,7 +10,7 @@ DynamicJsonDocument configAsDoc() {
     DynamicJsonDocument doc(1024);
     doc[F("ssid")] = WiFiConnection.getSsid();
     doc[F("password")] = WiFiConnection.getPass();
-    doc[F("ip")] = NmeaServerConnection.getIp();
+    doc[F("host")] = NmeaServerConnection.getHost();
     doc[F("port")] = NmeaServerConnection.getPort();
     return doc;
 }
@@ -19,7 +19,7 @@ void applyConfig(JsonObject obj) {
     Serial.println("Loading values from config...");
     WiFiConnection.setSsid(obj[F("ssid")]);
     WiFiConnection.setPass(obj[F("password")]);
-    NmeaServerConnection.setIp(obj[F("ip")]);
+    NmeaServerConnection.setHost(obj[F("host")]);
     NmeaServerConnection.setPort(obj[F("port")]);
 }
 

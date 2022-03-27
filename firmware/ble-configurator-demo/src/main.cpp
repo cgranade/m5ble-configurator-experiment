@@ -6,6 +6,7 @@
 
 #include "configurator_service.hpp"
 #include "wifi_connection.hpp"
+#include "nmea_server_connection.hpp"
 #include "config_store.hpp"
 #include "resources.hpp"
 
@@ -34,11 +35,18 @@ void updateDisplay(void) {
     gfx.setTextSize(1, 1);
 
     // TODO: Replace with actual speedometer display.
-    gfx.setFont(&URW_Palladio_L_Bold_72);
-    gfx.setTextDatum(textdatum_t::middle_centre);
-    gfx.setTextSize(3.0);
-    gfx.drawString("42.0", SCREEN_WIDTH / 2, (SCREEN_HEIGHT - FA_WIFI_HEIGHT) / 2);
-    gfx.setTextSize(1.0);
+    delay(1);
+    std::pair<double, double> speedAndHeading;
+    if (WiFiConnection.getStatus() == WL_CONNECTED && NmeaServerConnection.getSpeedAndHeading(&speedAndHeading)) {
+      // TODO: Show heading as well.
+      char buf[10];
+      sprintf(buf, "%2.1f", speedAndHeading.first);
+      gfx.setFont(&URW_Palladio_L_Bold_72);
+      gfx.setTextDatum(textdatum_t::middle_centre);
+      gfx.setTextSize(3.0);
+      gfx.drawString(buf, SCREEN_WIDTH / 2, (SCREEN_HEIGHT - FA_WIFI_HEIGHT) / 2);
+      gfx.setTextSize(1.0);
+    }
 
     // Set font size to be appropriate for WiFi and battery status.
     gfx.setTextDatum(textdatum_t::middle_left);

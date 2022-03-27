@@ -26,8 +26,8 @@
         </tr>
         @* TODO: Add client-side validation to these two. *@
         <tr>
-            <th>NMEA Gateway IP</th>
-            <td><input @bind='Config.IpAddress'></td>
+            <th>NMEA Gateway</th>
+            <td><input @bind='Config.Host'></td>
         </tr>
         <tr>
             <th>NMEA Gateway Port</th>
@@ -52,8 +52,8 @@
         [JsonPropertyName("password")]
         public string? Password { get; set; }
 
-        [JsonPropertyName("ip")]
-        public string? IpAddress { get; set; }
+        [JsonPropertyName("host")]
+        public string? Host { get; set; }
 
         [JsonPropertyName("port")]
         public UInt32 Port { get; set; }
