@@ -7,44 +7,70 @@
 #include "configurator_service.hpp"
 #include "wifi_connection.hpp"
 #include "config_store.hpp"
+#include "resources.hpp"
 
 #include <sstream>
 
+// TODO: Use sprites to accelerate drawing icons.
 LGFX gfx;
-LGFX_Sprite sp(&gfx);
 
 int w;
 int h;
 
+#define SCREEN_HEIGHT 540
+#define SCREEN_WIDTH 960
+#define BOTTOM_MARGIN 10
+#define LEFT_MARGIN 10
+#define RIGHT_MARGIN 10
+#define ICON_PADDING 8
+#define ICON_ACTIVE TFT_BLACK
+#define ICON_INACTIVE TFT_SILVER
+
+// TODO: Don't update whole display every time – only redraw what we need.
 void updateDisplay(void) {
     Serial.println("About to refresh display.");
     gfx.fillScreen(TFT_WHITE);
     gfx.setTextColor(TFT_BLACK, TFT_WHITE);
     gfx.setTextSize(1, 1);
+
+    gfx.setFont(&fonts::FreeSerifBold24pt7b);
     gfx.drawString(currentPrompt.c_str(), 10, 10);
 
+    // Drop font size for statuses.
+    gfx.setFont(&fonts::FreeSerifBold12pt7b);
+
     // SD Card status
-    if (SD.cardType() == CARD_NONE) {
-      gfx.drawString("SD card missing.", 10, 400);
-    }
+    
+    gfx.drawBitmap(
+      SCREEN_WIDTH - FA_SD_CARD_WIDTH - ICON_PADDING - FA_BLUETOOTH_B_WIDTH - RIGHT_MARGIN,
+      SCREEN_HEIGHT - FA_SD_CARD_HEIGHT - BOTTOM_MARGIN,
+      fa_sd_card,
+      FA_SD_CARD_WIDTH, FA_SD_CARD_HEIGHT,
+      SD.cardType() != CARD_NONE ? ICON_ACTIVE : ICON_INACTIVE
+    );
 
     // BLE Status
-    if (bleDeviceConnected) {
-      gfx.drawString("BLE: Connected.", 10, 60);
-    } else {
-      gfx.drawString("BLE: Disconnected.", 10, 60);
-    }
+    gfx.drawBitmap(
+      SCREEN_WIDTH - FA_BLUETOOTH_B_WIDTH - RIGHT_MARGIN,
+      SCREEN_HEIGHT - FA_BLUETOOTH_B_HEIGHT - BOTTOM_MARGIN,
+      fa_bluetooth_b,
+      FA_BLUETOOTH_B_WIDTH, FA_BLUETOOTH_B_HEIGHT,
+      bleDeviceConnected ? ICON_ACTIVE : ICON_INACTIVE
+    );
 
     // Asking WiFi can take time, so give back control first.
     delay(1);
+    // TODO: Consolidate code between branches.
     Serial.println("About to ask WiFi for status.");
     if (WiFiConnection.getStatus() == WL_CONNECTED) {
+      gfx.drawBitmap(LEFT_MARGIN, SCREEN_HEIGHT - FA_WIFI_HEIGHT - BOTTOM_MARGIN, fa_wifi, FA_WIFI_WIDTH, FA_WIFI_HEIGHT, ICON_ACTIVE);
       std::ostringstream oss;
-      oss << "WiFi: Connected to " << WiFiConnection.getConnectedSsid() << ".";
-      gfx.drawString(oss.str().c_str(), 10, 100);
+      gfx.drawString(WiFiConnection.getConnectedSsid().c_str(), LEFT_MARGIN + FA_WIFI_WIDTH + 8, SCREEN_HEIGHT - FA_WIFI_HEIGHT - 3);
     } else {
-      gfx.drawString("WiFi: Disconnected.", 10, 100);
+      gfx.drawBitmap(LEFT_MARGIN, SCREEN_HEIGHT - FA_WIFI_HEIGHT - BOTTOM_MARGIN, fa_wifi, FA_WIFI_WIDTH, FA_WIFI_HEIGHT, ICON_INACTIVE);
     }
+
+    // wifiIcon.pushSprite(100, 300);
 
     gfx.display();
     gfx.waitDisplay();
@@ -62,9 +88,10 @@ void setup(void) {
 
   gfx.setEpdMode(epd_mode_t::epd_quality);
 
+  // wifiIcon.drawBitmap(0, 0, FA_WIFI_WIDTH, FA_WIFI_HEIGHT, fa_wifi);
+
   gfx.setAutoDisplay(false); 
   gfx.fillScreen(TFT_WHITE);
-  gfx.setFont(&fonts::FreeSerifBold18pt7b);
   // Update as soon as possible so that the user knows we're working.
   updateDisplay();
 

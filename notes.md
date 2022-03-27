@@ -10,6 +10,7 @@ dotnet run --pathbase=/m5ble-configurator-experiment
 - https://docs.microsoft.com/events/dotnetconf-2021/connecting-gadgets-to-blazor
 - https://duino4projects.com/m5paper-weather-station/
 - https://github.com/naoki-sawada/m5stack-ble/blob/master/m5stack-ble/m5stack-ble.ino.
+- https://github.com/notisrac/FileToCArray --- useful for hardcoding images.
 
 # Pitfalls
 
