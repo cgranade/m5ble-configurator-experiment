@@ -11,6 +11,7 @@ dotnet run --pathbase=/m5ble-configurator-experiment
 - https://duino4projects.com/m5paper-weather-station/
 - https://github.com/naoki-sawada/m5stack-ble/blob/master/m5stack-ble/m5stack-ble.ino.
 - https://github.com/notisrac/FileToCArray --- useful for hardcoding images.
+- http://oleddisplay.squix.ch/#/home for making custom fonts. Make sure to choose "Adafruit GFX Font" as the library version. Try https://github.com/adafruit/Adafruit-GFX-Library/tree/master/fontconvert as well for fonts not covered by squix.
 
 # Pitfalls
 
