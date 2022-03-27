@@ -33,14 +33,18 @@ void updateDisplay(void) {
     gfx.setTextColor(TFT_BLACK, TFT_WHITE);
     gfx.setTextSize(1, 1);
 
-    gfx.setFont(&fonts::FreeSerifBold24pt7b);
-    gfx.drawString(currentPrompt.c_str(), 10, 10);
+    // TODO: Replace with actual speedometer display.
+    gfx.setFont(&URW_Palladio_L_Bold_72);
+    gfx.setTextDatum(textdatum_t::middle_centre);
+    gfx.setTextSize(3.0);
+    gfx.drawString("42.0", SCREEN_WIDTH / 2, (SCREEN_HEIGHT - FA_WIFI_HEIGHT) / 2);
+    gfx.setTextSize(1.0);
 
-    // Drop font size for statuses.
+    // Set font size to be appropriate for WiFi and battery status.
+    gfx.setTextDatum(textdatum_t::middle_left);
     gfx.setFont(&fonts::FreeSerifBold12pt7b);
 
     // SD Card status
-    
     gfx.drawBitmap(
       SCREEN_WIDTH - FA_SD_CARD_WIDTH - ICON_PADDING - FA_BLUETOOTH_B_WIDTH - RIGHT_MARGIN,
       SCREEN_HEIGHT - FA_SD_CARD_HEIGHT - BOTTOM_MARGIN,
@@ -58,6 +62,8 @@ void updateDisplay(void) {
       bleDeviceConnected ? ICON_ACTIVE : ICON_INACTIVE
     );
 
+    // TODO: Draw battery status here.
+
     // Asking WiFi can take time, so give back control first.
     delay(1);
     // TODO: Consolidate code between branches.
@@ -65,7 +71,7 @@ void updateDisplay(void) {
     if (WiFiConnection.getStatus() == WL_CONNECTED) {
       gfx.drawBitmap(LEFT_MARGIN, SCREEN_HEIGHT - FA_WIFI_HEIGHT - BOTTOM_MARGIN, fa_wifi, FA_WIFI_WIDTH, FA_WIFI_HEIGHT, ICON_ACTIVE);
       std::ostringstream oss;
-      gfx.drawString(WiFiConnection.getConnectedSsid().c_str(), LEFT_MARGIN + FA_WIFI_WIDTH + 8, SCREEN_HEIGHT - FA_WIFI_HEIGHT - 3);
+      gfx.drawString(WiFiConnection.getConnectedSsid().c_str(), LEFT_MARGIN + FA_WIFI_WIDTH + 8, SCREEN_HEIGHT - FA_WIFI_HEIGHT / 2 - BOTTOM_MARGIN / 2);
     } else {
       gfx.drawBitmap(LEFT_MARGIN, SCREEN_HEIGHT - FA_WIFI_HEIGHT - BOTTOM_MARGIN, fa_wifi, FA_WIFI_WIDTH, FA_WIFI_HEIGHT, ICON_INACTIVE);
     }
