@@ -8,7 +8,7 @@
   "resources": {
     "assembly": {
       "Blazm.Bluetooth.dll": "sha256-yp3i7GEMLeoGopzKPbmX4E5QwpaPiXZVcPZ4814zg84=",
-      "Configurator.dll": "sha256-tgJp9f3ubjuuoFcKFgrb4fAID21rma+AGxrkEpeMRRY=",
+      "Configurator.dll": "sha256-wzo2GFMaNBnqYAE1DcJ0fcMb8DTX13PB920mPTSYpFo=",
       "Microsoft.AspNetCore.Components.dll": "sha256-SaFJQDyBuNoJe72y9+WDI8mpwlpkXHFYoWSlWSTXZDQ=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-1cjJe72LHg2rIinwfvZc+lEax1Z\/naO+iS8VCbhJKhU=",
       "Microsoft.AspNetCore.Components.WebAssembly.dll": "sha256-W\/TjLIetVrb2vKcJD\/gwUdd0vYsEfyVlsNpbGz2109I=",
