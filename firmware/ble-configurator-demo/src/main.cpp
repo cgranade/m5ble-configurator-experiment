@@ -102,7 +102,7 @@ void setup(void) {
   updateDisplay();
 
   // Make sure to load config data before trying to init communications.
-  loadConfig();
+  loadConfigToSdCard();
 
   initBLE();
   WiFiConnection.setup();

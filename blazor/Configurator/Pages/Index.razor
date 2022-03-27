@@ -2,6 +2,9 @@
 @inject IBluetoothNavigator bluetoothNavigator
 @inject ILogger<Index> logger
 @using System.Text
+@using System.Text.Json
+@using System.Diagnostics
+@using System.Text.Json.Serialization
 
 <PageTitle>Index</PageTitle>
 
@@ -15,11 +18,20 @@
         </tr>
         <tr>
             <th>SSID</th>
-            <td><input @bind='Ssid'></td>
+            <td><input @bind='Config.Ssid'></td>
         </tr>
         <tr>
             <th>Password</th>
-            <td><input type="password" @bind='Password'></td>
+            <td><input type="password" @bind='Config.Password'></td>
+        </tr>
+        @* TODO: Add client-side validation to these two. *@
+        <tr>
+            <th>NMEA Gateway IP</th>
+            <td><input @bind='Config.IpAddress'></td>
+        </tr>
+        <tr>
+            <th>NMEA Gateway Port</th>
+            <td><input @bind='Config.Port'></td>
         </tr>
     </tbody>
 </table>
@@ -32,29 +44,48 @@
 
 @code
 {
+    record class DeviceConfig
+    {
+        [JsonPropertyName("ssid")]
+        public string? Ssid { get; set; }
+
+        [JsonPropertyName("password")]
+        public string? Password { get; set; }
+
+        [JsonPropertyName("ip")]
+        public string? IpAddress { get; set; }
+
+        [JsonPropertyName("port")]
+        public UInt32 Port { get; set; }
+    }
+
+    private DeviceConfig Config = new();
+
     const string SERVICE_UUID = "57bf47c8-8bf6-489f-b89b-109e9f892602";
-    const string WIFI_SSID_CHARACTERISTIC_UUID = "22834252-e71c-4b13-a050-8951874c5b20";
-    const string WIFI_PASSWORD_CHARACTERISTIC_UUID = "605fa5b2-bf86-4e1b-93c0-4c77cf0df75c";
     const string WIFI_RECONNECT_CHARACTERISTIC_UUID = "92996f42-419a-4162-8b70-96aa7a9d891e";
     const string SAVE_CONFIG_CHARACTERISTIC_UUID = "62c4e57d-e7df-4eec-884b-13587fa2f0bf";
+    const string CONFIG_JSON_CHARACTERISTIC_UUID = "7c087fc6-5a7c-4aac-8cc2-ffc11799eb27";
 
     private Device? Device = null;
 
     protected string DeviceName => Device?.Name ?? "<disconnected>";
-    protected string? Ssid { get; set; }
-    protected string? Password { get; set; }
 
     protected async Task GetConfig()
     {
-        Ssid = await GetCharacteristicValue(WIFI_SSID_CHARACTERISTIC_UUID);
-        Password = await GetCharacteristicValue(WIFI_PASSWORD_CHARACTERISTIC_UUID);
+        var json = await GetCharacteristicValue(CONFIG_JSON_CHARACTERISTIC_UUID);
+        // TODO: Handle more gracefully. By  which I mean gracefully at all.
+        Debug.Assert(json != null);
+        var config = JsonSerializer.Deserialize<DeviceConfig>(json);
+        // TODO: Same here as well.
+        Debug.Assert(config != null);
+        Config = config;
         StateHasChanged();
     }
 
     protected async Task SendConfig()
     {
-        await SetCharacteristicValue(WIFI_SSID_CHARACTERISTIC_UUID, Ssid ?? "");
-        await SetCharacteristicValue(WIFI_PASSWORD_CHARACTERISTIC_UUID, Password ?? "");
+        var json = JsonSerializer.Serialize(Config);
+        await SetCharacteristicValue(CONFIG_JSON_CHARACTERISTIC_UUID, json);
         await SaveConfigToCard();
         await ReconnectToWifi();
     }

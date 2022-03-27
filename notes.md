@@ -17,3 +17,10 @@ dotnet run --pathbase=/m5ble-configurator-experiment
 
 - ArduinoBLE is not ESP32 compatible, but the ESP32 board support library for Arduino includes a _different_ BLE library built-in.
 - Need to have `delay(1)` to allow BLE tasks to run: https://github.com/espressif/arduino-esp32/issues/3871
+
+# TODOs
+
+- Add a characteristic for reading error messages from a LIFO stack of errors. Currently no way to allow central devices (clients) to tell when writing to a device failed.
+- Figure out why filtering on services doesn't work — maybe something with GATT?
+- Make the Blazor side work correctly when a device is not connected.
+- Consider collapsing various characteristics into one that returns JSON encoded.
