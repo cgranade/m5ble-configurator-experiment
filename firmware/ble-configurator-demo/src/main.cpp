@@ -34,8 +34,9 @@ void updateDisplay(void) {
     gfx.setTextColor(TFT_BLACK, TFT_WHITE);
     gfx.setTextSize(1, 1);
 
-    // TODO: Replace with actual speedometer display.
+    // TODO: Move to bg thread that asks server for updates.
     delay(1);
+    Serial.println("Asking SOG/COG.");
     std::pair<double, double> speedAndHeading;
     if (WiFiConnection.getStatus() == WL_CONNECTED && NmeaServerConnection.getSpeedAndHeading(&speedAndHeading)) {
       // TODO: Show heading as well.

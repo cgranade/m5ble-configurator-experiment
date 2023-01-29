@@ -31,7 +31,10 @@ bool WiFiConnection::setup() {
         return false;
     }
 
-    Serial.println("Connected to WiFi, Connecting to server.");
+    Serial.printf(
+        "Connected to WiFi with IP address %s.\n",
+        WiFi.localIP().toString().c_str()
+    );
     return true;
 }
 
